@@ -17,4 +17,4 @@ Just copy `index.php` to a folder on your webserver.
 
 ## Screenshot
 
-![Screenshot](https://raw.github.com/jcampbell1/simple-file-manager/master/screenshot.png "Screenshot")
+![Screenshot](https://raw.github.com/EduardoOliveira/simple-file-manager/master/screenshot2.png "Screenshot")
