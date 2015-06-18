@@ -333,7 +333,7 @@ $MAX_UPLOAD_SIZE = min(asBytes(ini_get('post_max_size')), asBytes(ini_get('uploa
 
                 var $dl_link = '<a href="?do=download&file='+encodeURIComponent(data.path)+'">' +
                     '<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>&nbsp;&nbsp;download</a>&nbsp;&nbsp;&nbsp;';
-                var $delete_link = '<a href="#" data-file="'+data.path+'">' +
+                var $delete_link = '<a href="#" data-file="'+data.path+'"  class="delete">' +
                     '<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;&nbsp;delete</a>';
                 var perms = [];
                 if (data.is_readable) perms.push('read');
