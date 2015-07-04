@@ -90,6 +90,40 @@ if ($_GET['do'] == 'list') {
     ob_flush();
     readfile($file);
     exit;
+} elseif ($_POST['do'] == 'zip') {
+    $filename = basename($file);
+    echo $file."\n";
+    echo $filename;
+
+    // Initialize archive object
+    $zip = new ZipArchive();
+    $zip->open($file.".zip", ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+    // Create recursive directory iterator
+    /** @var SplFileInfo[] $files */
+    $files = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator(__DIR__."/".$file),
+        RecursiveIteratorIterator::LEAVES_ONLY
+    );
+
+    foreach ($files as $name => $filez)
+    {
+        // Skip directories (they would be added automatically)
+        if (!$filez->isDir())
+        {
+            // Get real and relative path for current file
+            $filePath = $filez->getRealPath();
+            $relativePath = substr($filePath, strlen(__DIR__."/".$file) + 1);
+
+            // Add current file to archive
+            $zip->addFile($filePath, $relativePath);
+        }
+    }
+
+    // Zip archive will be created only after closing object
+    $zip->close();
+    echo json_encode(array('success' => true));
+    exit;
 }
 function rmrf($dir)
 {
@@ -220,6 +254,14 @@ $MAX_UPLOAD_SIZE = min(asBytes(ini_get('post_max_size')), asBytes(ini_get('uploa
                 return false;
             });
 
+            $('body').on('click', '.zip', function (data) {
+                $.post("", {'do': 'zip', file: $(this).attr('data-file'), xsrf: XSRF}, function (response) {
+                    console.log("weqeqwe");
+                    list();
+                }, 'json');
+                return false;
+            });
+
             $('#mkdir').submit(function (e) {
                 var hashval = window.location.hash.substr(1),
                     $dir = $(this).find('[name=name]');
@@ -331,10 +373,13 @@ $MAX_UPLOAD_SIZE = min(asBytes(ini_get('post_max_size')), asBytes(ini_get('uploa
                     .html('<span class="glyphicon '+(data.is_dir ? 'glyphicon-folder-open' : 'glyphicon-file')
                     +'" aria-hidden="true"></span>&nbsp;&nbsp;&nbsp;'+data.name);
 
+                var $zip_link = '<a href="#" data-file="'+data.path+'"  class="zip">' +
+                    '<span class="glyphicon glyphicon-briefcase" aria-hidden="true"></span>&nbsp;&nbsp;zip</a>&nbsp;&nbsp;&nbsp;';
                 var $dl_link = '<a href="?do=download&file='+encodeURIComponent(data.path)+'">' +
                     '<span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>&nbsp;&nbsp;download</a>&nbsp;&nbsp;&nbsp;';
                 var $delete_link = '<a href="#" data-file="'+data.path+'"  class="delete">' +
                     '<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;&nbsp;delete</a>';
+
                 var perms = [];
                 if (data.is_readable) perms.push('read');
                 if (data.is_writable) perms.push('write');
@@ -346,7 +391,7 @@ $MAX_UPLOAD_SIZE = min(asBytes(ini_get('post_max_size')), asBytes(ini_get('uploa
                         .html($('<span class="size" />').text(formatFileSize(data.size))))
                     .append($('<td/>').attr('data-sort', data.mtime).text(formatTimestamp(data.mtime)))
                     .append($('<td/>').text(perms.join('+')))
-                    .append($('<td/>').append(data.is_dir ? '' : $dl_link).append(data.is_deleteable ? $delete_link : ''))
+                    .append($('<td/>').append(data.is_dir ? $zip_link : $dl_link).append(data.is_deleteable ? $delete_link : ''))
                 return $html;
             }
 
@@ -416,11 +461,11 @@ $MAX_UPLOAD_SIZE = min(asBytes(ini_get('post_max_size')), asBytes(ini_get('uploa
     <table id="table" class="table table-striped table-hover">
         <thead>
         <tr>
-            <th>Name</th>
-            <th>Size</th>
-            <th>Modified</th>
-            <th>Permissions</th>
-            <th>Actions</th>
+            <th style='cursor:pointer;'>Name</th>
+            <th style='cursor:pointer;'>Size</th>
+            <th style='cursor:pointer;'>Modified</th>
+            <th style='cursor:pointer;'>Permissions</th>
+            <th style='cursor:pointer;'>Actions</th>
         </tr>
         </thead>
         <tbody id="list">
