@@ -67,7 +67,7 @@ if($_GET['do'] == 'list') {
 	echo json_encode(array('success' => true, 'is_writable' => is_writable($file), 'results' =>$result));
 	exit;
 } elseif ($_POST['do'] == 'delete') {
-	rmrf($file);
+	rmrf($_POST['file']);
 	exit;
 } elseif ($_POST['do'] == 'mkdir') {
 	// don't allow actions outside root. we also filter out slashes to catch args like './../outside'
