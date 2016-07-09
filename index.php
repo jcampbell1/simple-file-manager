@@ -96,6 +96,8 @@ if (isset($_GET['do']) OR isset($_POST['do'])) {
 			    exit;
 			chdir($file);
 			@mkdir($_POST['name']);
+			header('Content-Type: application/json');
+			echo json_encode(array('success' => true));
 			exit;
 		
 		case 'upload':
