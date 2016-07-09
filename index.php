@@ -9,7 +9,6 @@ Liscense: MIT
 $allow_delete = true;
 
 /* Uncomment section below, if you want a trivial password protection */
-
 /*
 $PASSWORD = 'sfm'; 
 session_start();
@@ -33,14 +32,15 @@ if (isset($_REQUEST['file'])) {
 	if($tmp === false)
 		err(404,'File or Directory Not Found');
 	if(substr($tmp, 0,strlen(__DIR__)) !== __DIR__)
-		err(403,"Forbidden");
+		err(403,'Forbidden');
 }
 
 if(!$_COOKIE['_sfm_xsrf'])
 	setcookie('_sfm_xsrf',bin2hex(openssl_random_pseudo_bytes(16)));
+
 if($_POST) {
 	if($_COOKIE['_sfm_xsrf'] !== $_POST['xsrf'] || !$_POST['xsrf'])
-		err(403,"XSRF Failure");
+		err(403,'XSRF Failure');
 }
 
 if (isset($_GET['do']) OR isset($_POST['do'])) {
@@ -115,6 +115,7 @@ if (isset($_GET['do']) OR isset($_POST['do'])) {
 			exit;
 	}
 }
+
 function rmrf($dir) {
 	if(is_dir($dir)) {
 		$files = array_diff(scandir($dir), array('.','..'));
@@ -125,6 +126,7 @@ function rmrf($dir) {
 		unlink($dir);
 	}
 }
+
 function is_recursively_deleteable($d) {
 	$stack = array($d);
 	while($dir = array_pop($stack)) {
@@ -137,15 +139,19 @@ function is_recursively_deleteable($d) {
 	}
 	return true;
 }
+
 function err($code,$msg) {
+	header('Content-Type: application/json');
 	echo json_encode(array('error' => array('code'=>intval($code), 'msg' => $msg)));
 	exit;
 }
+
 function asBytes($ini_v) {
 	$ini_v = trim($ini_v);
 	$s = array('g'=> 1<<30, 'm' => 1<<20, 'k' => 1<<10);
 	return intval($ini_v) * ($s[strtolower(substr($ini_v,-1))] ?: 1);
 }
+
 $MAX_UPLOAD_SIZE = min(asBytes(ini_get('post_max_size')), asBytes(ini_get('upload_max_filesize')));
 ?><!DOCTYPE html>
 <html>
