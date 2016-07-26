@@ -16,7 +16,7 @@ $PASSWORD = 'sfm';
 session_start();
 if(!$_SESSION['_sfm_allowed']) {
 	// mitigate timing attacks
-	if($_POST['p'] && hash_equals($PASSWORD, $_POST['p'])) {
+	if(isset($_POST['p']) && hash_equals($PASSWORD, $_POST['p'])) {
 		$_SESSION['_sfm_allowed'] = true;
 		header('Location: ?');
 	}
