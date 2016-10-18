@@ -94,12 +94,21 @@ if($_GET['do'] == 'list') {
 	exit;
 } elseif ($_GET['do'] == 'download') {
 	$filename = basename($file);
+	if (is_dir($file)) {
+		$zipFilename = tempnam(sys_get_temp_dir(), 'sfm');
+		zipDir(realpath($file), $zipFilename);
+		$file = $zipFilename;
+		$filename .= '.zip';
+	}
 	header('Content-Type: ' . mime_content_type($file));
 	header('Content-Length: '. filesize($file));
 	header(sprintf('Content-Disposition: attachment; filename=%s',
 		strpos('MSIE',$_SERVER['HTTP_REFERER']) ? rawurlencode($filename) : "\"$filename\"" ));
 	ob_flush();
 	readfile($file);
+	if (isset($zipFilename)) {
+		unlink($zipFilename);
+	}
 	exit;
 }
 function rmrf($dir) {
@@ -136,6 +145,51 @@ function asBytes($ini_v) {
 	return intval($ini_v) * ($s[strtolower(substr($ini_v,-1))] ?: 1);
 }
 $MAX_UPLOAD_SIZE = min(asBytes(ini_get('post_max_size')), asBytes(ini_get('upload_max_filesize')));
+
+/**
+ * Extracted from http://php.net/manual/en/class.ziparchive.php#110719
+ * Add files and sub-directories in a folder to zip file.
+ * @param string $folder
+ * @param ZipArchive $zipFile
+ * @param int $exclusiveLength Number of text to be exclusived from the file path.
+ */
+function folderToZip($folder, &$zipFile, $exclusiveLength) {
+    $handle = opendir($folder);
+    while (false !== $f = readdir($handle)) {
+        if ($f != '.' && $f != '..') {
+            $filePath = "$folder/$f";
+            // Remove prefix from file path before add to zip.
+            $localPath = substr($filePath, $exclusiveLength);
+        if (is_file($filePath)) {
+            $zipFile->addFile($filePath, $localPath);
+        } elseif (is_dir($filePath)) {
+            // Add sub-directory.
+            $zipFile->addEmptyDir($localPath);
+            folderToZip($filePath, $zipFile, $exclusiveLength);
+        }
+      }
+    }
+    closedir($handle);
+}
+
+/**
+ * Extracted from http://php.net/manual/en/class.ziparchive.php#110719
+ * Zip a folder (include itself)
+ * @param string $sourcePath Path of directory to be zip.
+ * @param string $outZipPath Path of output zip file.
+ */
+function zipDir($sourcePath, $outZipPath) {
+    $pathInfo = pathInfo($sourcePath);
+    $parentPath = $pathInfo['dirname'];
+    $dirName = $pathInfo['basename'];
+
+    $z = new ZipArchive();
+    $z->open($outZipPath, ZIPARCHIVE::CREATE);
+    $z->addEmptyDir($dirName);
+    folderToZip($sourcePath, $z, strlen("$parentPath/"));
+    $z->close();
+}
+
 ?>
 <!DOCTYPE html>
 <html><head>
@@ -174,7 +228,6 @@ td.first {font-size:14px;white-space: normal;}
 td.empty { color:#777; font-style: italic; text-align: center;padding:3em 0;}
 .is_dir .size {color:transparent;font-size:0;}
 .is_dir .size:before {content: "--"; font-size:14px;color:#333;}
-.is_dir .download{visibility: hidden}
 a.delete {display:inline-block;
 	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAADtSURBVHjajFC7DkFREJy9iXg0t+EHRKJDJSqRuIVaJT7AF+jR+xuNRiJyS8WlRaHWeOU+kBy7eyKhs8lkJrOzZ3OWzMAD15gxYhB+yzAm0ndez+eYMYLngdkIf2vpSYbCfsNkOx07n8kgWa1UpptNII5VR/M56Nyt6Qq33bbhQsHy6aR0WSyEyEmiCG6vR2ffB65X4HCwYC2e9CTjJGGok4/7Hcjl+ImLBWv1uCRDu3peV5eGQ2C5/P1zq4X9dGpXP+LYhmYz4HbDMQgUosWTnmQoKKf0htVKBZvtFsx6S9bm48ktaV3EXwd/CzAAVjt+gHT5me0AAAAASUVORK5CYII=) no-repeat scroll 0 2px;
 	color:#d00;	margin-left: 15px;font-size:11px;padding:0 0 0 13px;
