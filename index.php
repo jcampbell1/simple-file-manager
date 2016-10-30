@@ -32,8 +32,8 @@ setlocale(LC_ALL,'en_US.UTF-8');
 $tmp = realpath($_REQUEST['file']);
 if($tmp === false)
 	err(404,'File or Directory Not Found');
-if(substr($tmp, 0,strlen(__DIR__)) !== __DIR__)
-	err(403,"Forbidden");
+//if(substr($tmp, 0,strlen(__DIR__)) !== __DIR__)
+//	err(403,"Forbidden");
 
 if(!$_COOKIE['_sfm_xsrf'])
 	setcookie('_sfm_xsrf',bin2hex(openssl_random_pseudo_bytes(16)));
