@@ -6,28 +6,34 @@ Copyright John Campbell (jcampbell1)
 Liscense: MIT
 ********************************/
 
+// must be in UTF-8 or `basename` doesn't work
+setlocale(LC_ALL,'en_US.UTF-8');
+
+// Configuration
 // Set to false to disable delete button and delete POST request.
-$allow_delete = true;
+define('ALLOW_DELETE', TRUE);
+// Set to true to enable password protection.
+define('PASSWORD_PROTECTED', FALSE);
+// define('TOKEN_PROTECTED', TRUE);
+
 
 /* Uncomment section below, if you want a trivial password protection */
 
-/*
-$PASSWORD = 'sfm'; 
-session_start();
-if(!$_SESSION['_sfm_allowed']) {
-	// sha1, and random bytes to thwart timing attacks.  Not meant as secure hashing.
-	$t = bin2hex(openssl_random_pseudo_bytes(10));	
-	if($_POST['p'] && sha1($t.$_POST['p']) === sha1($t.$PASSWORD)) {
-		$_SESSION['_sfm_allowed'] = true;
-		header('Location: ?');
+if (PASSWORD_PROTECTED === TRUE) {
+	# code...
+	$PASSWORD = 'sfm'; 
+	session_start();
+	if(!$_SESSION['_sfm_allowed']) {
+		// sha1, and random bytes to thwart timing attacks.  Not meant as secure hashing.
+		$t = bin2hex(openssl_random_pseudo_bytes(10));	
+		if($_POST['p'] && sha1($t.$_POST['p']) === sha1($t.$PASSWORD)) {
+			$_SESSION['_sfm_allowed'] = true;
+			header('Location: ?');
+		}
+		echo '<html><body><form action=? method=post>PASSWORD:<input type=password name=p /></form></body></html>'; 
+		exit;
 	}
-	echo '<html><body><form action=? method=post>PASSWORD:<input type=password name=p /></form></body></html>'; 
-	exit;
 }
-*/
-
-// must be in UTF-8 or `basename` doesn't work
-setlocale(LC_ALL,'en_US.UTF-8');
 
 $tmp = realpath($_REQUEST['file']);
 if($tmp === false)
@@ -57,7 +63,7 @@ if($_GET['do'] == 'list') {
 	        	'name' => basename($i),
 	        	'path' => preg_replace('@^\./@', '', $i),
 	        	'is_dir' => is_dir($i),
-	        	'is_deleteable' => $allow_delete && ((!is_dir($i) && is_writable($directory)) ||
+	        	'is_deleteable' => ALLOW_DELETE && ((!is_dir($i) && is_writable($directory)) ||
                                                            (is_dir($i) && is_writable($directory) && is_recursively_deleteable($i))),
 
 	        	
@@ -73,7 +79,7 @@ if($_GET['do'] == 'list') {
 	echo json_encode(array('success' => true, 'is_writable' => is_writable($file), 'results' =>$result));
 	exit;
 } elseif ($_POST['do'] == 'delete') {
-	if($allow_delete) {
+	if(ALLOW_DELETE) {
 		rmrf($file);
 	}
 	exit;
@@ -190,10 +196,18 @@ a.delete {display:inline-block;
 .download {
 	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB2klEQVR4nJ2ST2sTQRiHn5mdmj92t9XmUJIWJGq9NHrRgxQiCtqbl97FqxgaL34CP0FD8Qv07EHEU0Ew6EXEk6ci8Q9JtcXEkHR3k+zujIdUqMkmiANzmJdnHn7vzCuIWbe291tSkvhz1pr+q1L2bBwrRgvFrcZKKinfP9zI2EoKmm7Azstf3V7fXK2Wc3ujvIqzAhglwRJoS2ImQZMEBjgyoDS4hv8QGHA1WICvp9yelsA7ITBTIkwWhGBZ0Iv+MUF+c/cB8PTHt08snb+AGAACZDj8qIN6bSe/uWsBb2qV24/GBLn8yl0plY9AJ9NKeL5ICyEIQkkiZenF5XwBDAZzWItLIIR6LGfk26VVxzltJ2gFw2a0FmQLZ+bcbo/DPbcd+PrDyRb+GqRipbGlZtX92UvzjmUpEGC0JgpC3M9dL+qGz16XsvcmCgCK2/vPtTNzJ1x2kkZIRBSivh8Z2Q4+VkvZy6O8HHvWyGyITvA1qndNpxfguQNkc2CIzM0xNk5QLedCEZm1VKsf2XrAXMNrA2vVcq4ZJ4DhvCSAeSALXASuLBTW129U6oPrT969AK4Bq0AeWARs4BRgieMUEkgDmeO9ANipzDnH//nFB0KgAxwATaAFeID5DQNatLGdaXOWAAAAAElFTkSuQmCC) no-repeat scroll 0px 5px;
 	padding:4px 0 4px 20px;
+	margin-left: 15px;
+}
+
+.copy-link {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QAAKqNIzIAAAAJcEhZcwAACKAAAAigABeFlOoAAAAHdElNRQfgCgwNDR/qiPbQAAAAhklEQVQoz83QMQrCQBQE0LchlTewMSex9gBBj2TtFdImeAvRS4iVeAt3LQxkNwiClTPN//OHGfgBtY2FHHeXfN1LMw7TMaAX7IqENI31KCStrSozRUeDTOo0QsaVTnifer0gzmpaSaUI/Yh/MNQ4fDOcx4/+VjHhKnpmjG6K6KV1UZScPHgBJNQlwwXH/qEAAAAuelRYdGRhdGU6Y3JlYXRlAAB42jMyMDTTNTTQNTQKMTS2MjS2MjbUNjCwMjAAAEERBQEaWIpcAAAALnpUWHRkYXRlOm1vZGlmeQAAeNozMjA00zU00DU0CjE0tjI0tjI21DYwsDIwAABBEQUBM2ci1AAAAG16VFh0c3ZnOmJhc2UtdXJpAAB42gXBUQ6EIAwFwBPV94FrzN6mWyshIS2BCvH2O3OXql8AkzvWWijiNsSfwAjvnBXcGoq44e6qGDNDvL0k1U1J3EIt6HpaLcKhVPnVTknkkySd+6E7/460jZn/WLwmknT6kIUAAAAASUVORK5CYII=) no-repeat scroll 0px 5px;
+    padding: 4px 0px 4px 20px;
+    margin-left: 15px;
 }
 
 </style>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/clipboard.js/1.5.13/clipboard.min.js"></script>
 <script>
 (function($){
 	$.fn.tablesorter = function() {
@@ -351,6 +365,8 @@ $(function(){
 			.text(data.name);
 		var $dl_link = $('<a/>').attr('href','?do=download&file='+encodeURIComponent(data.path))
 			.addClass('download').text('download');
+		var $link_copy = $('<a/>').attr('href', 'javascript: void(0);').addClass('clipboard').addClass('copy-link')
+            .attr('data-clipboard-text', (window.location.origin + window.location.pathname + data.path)).text('copy link ');
 		var $delete_link = $('<a href="#" />').attr('data-file',data.path).addClass('delete').text('delete');
 		var perms = [];
 		if(data.is_readable) perms.push('read');
@@ -363,7 +379,7 @@ $(function(){
 				.html($('<span class="size" />').text(formatFileSize(data.size))) ) 
 			.append( $('<td/>').attr('data-sort',data.mtime).text(formatTimestamp(data.mtime)) )
 			.append( $('<td/>').text(perms.join('+')) )
-			.append( $('<td/>').append($dl_link).append( data.is_deleteable ? $delete_link : '') )
+			.append( $('<td/>').append($link_copy).append($dl_link).append( data.is_deleteable ? $delete_link : '') )
 		return $html;
 	}
 	function renderBreadcrumbs(path) {
@@ -391,6 +407,8 @@ $(function(){
 		var d = Math.round(bytes*10);
 		return pos ? [parseInt(d/10),".",d%10," ",s[pos]].join('') : bytes + ' bytes';
 	}
+
+	new Clipboard('.clipboard');
 })
 
 </script>
