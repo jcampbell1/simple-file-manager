@@ -22,9 +22,8 @@ $allow_direct_link = true; // Set to false to only allow downloads and not direc
 $PASSWORD = 'sfm'; 
 session_start();
 if(!$_SESSION['_sfm_allowed']) {
-	// sha1, and random bytes to thwart timing attacks.  Not meant as secure hashing.
-	$t = bin2hex(openssl_random_pseudo_bytes(10));	
-	if($_POST['p'] && sha1($t.$_POST['p']) === sha1($t.$PASSWORD)) {
+	// mitigate timing attacks
+	if(isset($_POST['p']) && hash_equals($PASSWORD, $_POST['p'])) {
 		$_SESSION['_sfm_allowed'] = true;
 		header('Location: ?');
 	}
