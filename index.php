@@ -14,7 +14,15 @@ $allow_delete = true; // Set to false to disable delete button and delete POST r
 $allow_create_folder = true; // Set to false to disable folder creation
 $allow_upload = true; // Set to true to allow upload files
 $allow_direct_link = true; // Set to false to only allow downloads and not direct link
-
+// Sometimes you may need to hide sensitive files
+$files_to_skip = array(
+    '.',
+    '..',
+    'index.php',
+    '___info.txt',
+    '__api.php',
+    '__secretadmin.php',
+);
 
 /* Uncomment section below, if you want a trivial password protection */
 
@@ -54,7 +62,7 @@ if($_GET['do'] == 'list') {
 	if (is_dir($file)) {
 		$directory = $file;
 		$result = array();
-		$files = array_diff(scandir($directory), array('.','..'));
+		$files = array_diff(scandir($directory), $files_to_skip);
 	    foreach($files as $entry) if($entry !== basename(__FILE__)) {
     		$i = $directory . '/' . $entry;
 	    	$stat = stat($i);
@@ -101,13 +109,21 @@ if($_GET['do'] == 'list') {
 	exit;
 } elseif ($_GET['do'] == 'download') {
 	$filename = basename($file);
-	header('Content-Type: ' . mime_content_type($file));
+	header('Content-Type: ' . detectFileMimeType($file));
 	header('Content-Length: '. filesize($file));
 	header(sprintf('Content-Disposition: attachment; filename=%s',
 		strpos('MSIE',$_SERVER['HTTP_REFERER']) ? rawurlencode($filename) : "\"$filename\"" ));
 	ob_flush();
 	readfile($file);
 	exit;
+}
+// As mime_content_type() fails on Windows
+function detectFileMimeType($filename='')
+{
+    $filename = escapeshellcmd($filename);
+    $command = "file -b --mime-type -m /usr/share/misc/magic {$filename}";
+    $mimeType = shell_exec($command);
+    return trim($mimeType);
 }
 function rmrf($dir) {
 	if(is_dir($dir)) {
@@ -146,6 +162,7 @@ $MAX_UPLOAD_SIZE = min(asBytes(ini_get('post_max_size')), asBytes(ini_get('uploa
 ?>
 <!DOCTYPE html>
 <html><head>
+<title>Simple File Manager</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
 <style>
@@ -251,10 +268,13 @@ $(function(){
 	$('#table').tablesorter();
 	
 	$('.delete').live('click',function(data) {
-		$.post("",{'do':'delete',file:$(this).attr('data-file'),xsrf:XSRF},function(response){
-			list();
-		},'json');
-		return false;
+    if (confirm("WARNING! \nPermanently delete "+$(this).attr('data-file')+" ?")) {
+        $.post("", {'do': 'delete', file: $(this).attr('data-file'), xsrf: XSRF}, function (response) {
+            list();
+        }, 'json');
+        return false;
+    }
+    else console.log('Aborted Delete');  
 	});
 
 	$('#mkdir').submit(function(e) {
