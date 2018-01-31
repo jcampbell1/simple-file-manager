@@ -20,6 +20,8 @@ $disallowed_extensions = ['php'];  // must be an array. Extensions disallowed to
 $hidden_extensions = ['php']; // must be an array of lowercase file extensions. Extensions hidden in directory index
 
 $PASSWORD = '';  // Set the password, to access the file manager... (optional)
+$LANGUAGE = 'es'; // Set Language
+
 
 if($PASSWORD) {
 
@@ -169,6 +171,36 @@ function asBytes($ini_v) {
 	$s = ['g'=> 1<<30, 'm' => 1<<20, 'k' => 1<<10];
 	return intval($ini_v) * ($s[strtolower(substr($ini_v,-1))] ?: 1);
 }
+/**
+ * Traductor
+ */
+
+
+function _t ($text, $lang="", $context=""){
+    global $LANGUAGE; 
+
+
+    if($LANGUAGE == "es"){
+        $t = array(
+            "es"=>array(
+            "Name"=>"Nombre",
+            "Size"=>"Tamaño",
+            "Modified"=>"Modificado",
+            "Permissions"=>"Permisos",
+            "Actions"=>"Acción"            
+            )
+            );    
+        return $t["es"][$text];   
+    
+    }else{
+        return $text;
+    }
+    
+        
+}
+
+
+
 $MAX_UPLOAD_SIZE = min(asBytes(ini_get('post_max_size')), asBytes(ini_get('upload_max_filesize')));
 ?>
 <!DOCTYPE html>
@@ -452,11 +484,11 @@ $(function(){
 
 <div id="upload_progress"></div>
 <table id="table"><thead><tr>
-	<th>Name</th>
-	<th>Size</th>
-	<th>Modified</th>
-	<th>Permissions</th>
-	<th>Actions</th>
+	<th><?php echo _t("Name"); ?></th>
+	<th><?php echo _t("Size"); ?></th>
+	<th><?php echo _t("Modified"); ?></th>
+	<th><?php echo _t("Permissions"); ?></th>		
+	<th><?php echo _t("Actions"); ?></th>			
 </tr></thead><tbody id="list">
 
 </tbody></table>
