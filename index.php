@@ -431,7 +431,7 @@ $(function(){
 </script>
 </head><body>
 <div id="top">
-   <?php if($allow_upload == true): ?>
+   <?php if($allow_create_folder == true): ?>
 	<form action="?" method="post" id="mkdir" />
 		<label for=dirname>Create New Folder</label><input id=dirname type=text name=name value="" />
 		<input type="submit" value="create" />
