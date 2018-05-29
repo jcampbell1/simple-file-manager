@@ -225,6 +225,13 @@ a.delete {display:inline-block;
 	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB2klEQVR4nJ2ST2sTQRiHn5mdmj92t9XmUJIWJGq9NHrRgxQiCtqbl97FqxgaL34CP0FD8Qv07EHEU0Ew6EXEk6ci8Q9JtcXEkHR3k+zujIdUqMkmiANzmJdnHn7vzCuIWbe291tSkvhz1pr+q1L2bBwrRgvFrcZKKinfP9zI2EoKmm7Azstf3V7fXK2Wc3ujvIqzAhglwRJoS2ImQZMEBjgyoDS4hv8QGHA1WICvp9yelsA7ITBTIkwWhGBZ0Iv+MUF+c/cB8PTHt08snb+AGAACZDj8qIN6bSe/uWsBb2qV24/GBLn8yl0plY9AJ9NKeL5ICyEIQkkiZenF5XwBDAZzWItLIIR6LGfk26VVxzltJ2gFw2a0FmQLZ+bcbo/DPbcd+PrDyRb+GqRipbGlZtX92UvzjmUpEGC0JgpC3M9dL+qGz16XsvcmCgCK2/vPtTNzJ1x2kkZIRBSivh8Z2Q4+VkvZy6O8HHvWyGyITvA1qndNpxfguQNkc2CIzM0xNk5QLedCEZm1VKsf2XrAXMNrA2vVcq4ZJ4DhvCSAeSALXASuLBTW129U6oPrT969AK4Bq0AeWARs4BRgieMUEkgDmeO9ANipzDnH//nFB0KgAxwATaAFeID5DQNatLGdaXOWAAAAAElFTkSuQmCC) no-repeat scroll 0px 5px;
 	padding:4px 0 4px 20px;
 }
+
+.edit {
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAAsTAAALEwEAmpwYAAABWWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgpMwidZAAAB30lEQVQoFXWSzUuUURTGf/d1nCHFD0YCwcW4EaGFgivbCC0URXKnCLqpCJEg8B+QCRftKnIjobjwk+xv0JYt2oiimxYhuRJKU0dtxrk99857p9HqwH3vee85z3nOF/xH7HuqnMmu0GPX+aqzbVfp9W8W427/cUqlWBmNwdosSbr4SIL7nMqjmu/8YtCM8skFjypBZf1FHLSNbi7Z4yeHAsI1aVnSwS8RlHC7iGaEaztPRozv5PxNbK+J6MdywT6b3neY4l9ghuXipI4n3KFdwHbdHQJ/UNKzJsulyolUVvFG2p5Vj3aJTsGfiQedHLXcpUijecq+A5ItEdwAO0IvSabUqrRY87prOFfNZ7z0tntqpobg9HLadouEeUDBLtOnIY161kgVJ+WVY9E8Yif0wwcJ4Hg0BftK1aV4LkhKnb0SZ0rsu9LeekDoR4wupb2hOpw0i7GGQQrSqxTCbYHhjXnMUeiHcwsSeVY3mkUaVUkLx8zIeECDEs5rLD9Y88578RQCUndEWIgkrWI5NGNMCzTACZ+VwZyZIOf7kVW/b0m5YYrbJPOX2J7R/5wCbYR+3ML53z9gt3ZuBksMyZKhnoV/ASrfIjQ3/2B9mya1w3kzrk16qHRLm1TauEpUrP8Gm5GUcUxRg/cAAAAASUVORK5CYII=) no-repeat scroll 0px 5px;
+	padding:4px 20px 4px 20px;
+	color: orange;
+}
+
 </style>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <script>
@@ -386,6 +393,8 @@ $(function(){
         	if (!data.is_dir && !allow_direct_link)  $link.css('pointer-events','none');
 		var $dl_link = $('<a/>').attr('href','?do=download&file='+ encodeURIComponent(data.path))
 			.addClass('download').text('download');
+		var $edit_link = $('<a/>').attr('href','?do=download&file='+ encodeURIComponent(data.path))
+			.addClass('edit').text('edit');
 		var $delete_link = $('<a href="#" />').attr('data-file',data.path).addClass('delete').text('delete');
 		var perms = [];
 		if(data.is_readable) perms.push('read');
@@ -398,7 +407,7 @@ $(function(){
 				.html($('<span class="size" />').text(formatFileSize(data.size))) )
 			.append( $('<td/>').attr('data-sort',data.mtime).text(formatTimestamp(data.mtime)) )
 			.append( $('<td/>').text(perms.join('+')) )
-			.append( $('<td/>').append($dl_link).append( data.is_deleteable ? $delete_link : '') )
+			.append( $('<td/>').append($edit_link).append($dl_link).append( data.is_deleteable ? $delete_link : '') )
 		return $html;
 	}
 	function renderBreadcrumbs(path) {
