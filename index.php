@@ -235,6 +235,7 @@ a.delete {display:inline-block;
 
 </style>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
 <script>
 (function($){
 	$.fn.tablesorter = function() {
@@ -394,7 +395,7 @@ $(function(){
         	if (!data.is_dir && !allow_direct_link)  $link.css('pointer-events','none');
 		var $dl_link = $('<a/>').attr('href','?do=download&file='+ encodeURIComponent(data.path))
 			.addClass('download').text('download');
-		var $edit_link = $('<a/>').attr('href','javascript:edit_file(\''+ encodeURIComponent(data.path)+'\')')
+		var $edit_link = $('<a/>').attr('href','javascript:edit_file(\''+ encodeURIComponent(data.path)+'\'); try {document.getElementById("mceu_28-body").remove()} catch(err){}')
 			.addClass('edit').text('edit');
 		var $delete_link = $('<a href="#" />').attr('data-file',data.path).addClass('delete').text('delete');
 		var perms = [];
@@ -442,10 +443,25 @@ function edit_file(path){
 	$.ajax({
     url:path,
     success: function (data){
-      console.log(data)
+			console.log(data);
+      tinymce.get('textarea').getBody().innerHTML = "<pre>" + data + "<\/pre>";
     }
   });
 }
+</script>
+<script type="application/x-javascript">
+tinymce.init({
+  selector: 'textarea',
+  height: 400,
+	width:900,
+  menubar: false,
+  plugins: [
+    'advlist autolink lists link image charmap print preview anchor textcolor',
+    'searchreplace visualblocks code fullscreen',
+    'insertdatetime media table contextmenu paste code help wordcount'
+  ],
+  toolbar: 'insert | undo redo |  formatselect | bold italic backcolor  | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat ',
+});
 </script>
 </head><body>
 <div id="top">
@@ -478,5 +494,6 @@ function edit_file(path){
 </tr></thead><tbody id="list">
 
 </tbody></table>
-<footer>simple php filemanager by <a href="https://github.com/jcampbell1">jcampbell1</a></footer>
-</body></html>
+<textarea id="textarea">Type some text here.</textarea>
+</body>
+</html>
