@@ -208,7 +208,8 @@ td.first {font-size:14px;white-space: normal;}
 td.empty { color:#777; font-style: italic; text-align: center;padding:3em 0;}
 .is_dir .size {color:transparent;font-size:0;}
 .is_dir .size:before {content: "--"; font-size:14px;color:#333;}
-.is_dir .download{visibility: hidden}
+.is_dir .download {visibility: hidden}
+.is_dir .edit {visibility: hidden}
 a.delete {display:inline-block;
 	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAADtSURBVHjajFC7DkFREJy9iXg0t+EHRKJDJSqRuIVaJT7AF+jR+xuNRiJyS8WlRaHWeOU+kBy7eyKhs8lkJrOzZ3OWzMAD15gxYhB+yzAm0ndez+eYMYLngdkIf2vpSYbCfsNkOx07n8kgWa1UpptNII5VR/M56Nyt6Qq33bbhQsHy6aR0WSyEyEmiCG6vR2ffB65X4HCwYC2e9CTjJGGok4/7Hcjl+ImLBWv1uCRDu3peV5eGQ2C5/P1zq4X9dGpXP+LYhmYz4HbDMQgUosWTnmQoKKf0htVKBZvtFsx6S9bm48ktaV3EXwd/CzAAVjt+gHT5me0AAAAASUVORK5CYII=) no-repeat scroll 0 2px;
 	color:#d00;	margin-left: 15px;font-size:11px;padding:0 0 0 13px;
@@ -393,7 +394,7 @@ $(function(){
         	if (!data.is_dir && !allow_direct_link)  $link.css('pointer-events','none');
 		var $dl_link = $('<a/>').attr('href','?do=download&file='+ encodeURIComponent(data.path))
 			.addClass('download').text('download');
-		var $edit_link = $('<a/>').attr('href','?do=download&file='+ encodeURIComponent(data.path))
+		var $edit_link = $('<a/>').attr('href','javascript:edit_file(\''+ encodeURIComponent(data.path)+'\')')
 			.addClass('edit').text('edit');
 		var $delete_link = $('<a href="#" />').attr('data-file',data.path).addClass('delete').text('delete');
 		var perms = [];
@@ -437,7 +438,14 @@ $(function(){
 		return pos ? [parseInt(d/10),".",d%10," ",s[pos]].join('') : bytes + ' bytes';
 	}
 })
-
+function edit_file(path){
+	$.ajax({
+    url:path,
+    success: function (data){
+      console.log(data)
+    }
+  });
+}
 </script>
 </head><body>
 <div id="top">
