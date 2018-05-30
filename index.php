@@ -185,6 +185,7 @@ $MAX_UPLOAD_SIZE = min(asBytes(ini_get('post_max_size')), asBytes(ini_get('uploa
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
 <style>
+
 body {font-family: "lucida grande","Segoe UI",Arial, sans-serif; font-size: 14px;width:1024;padding:1em;margin:0;}
 th {font-weight: normal; color: #1F75CC; background-color: #F0F9FF; padding:.5em 1em .5em .2em;
 	text-align: left;cursor:pointer;user-select: none;}
@@ -243,8 +244,8 @@ a.delete {display:inline-block;
 }
 
 #textarea {
-	width: 900px;
-	height: 300px;
+	width: 1200px;
+	height: 500px;
 	background-color: rgb(240,240,240);
 	resize: none;
 	-webkit-border-radius: 2px;
@@ -263,10 +264,37 @@ a.delete {display:inline-block;
   border-radius: 2px;
 	background-color: rgb(240,240,240);
 	font-family: "lucida grande","Segoe UI",Arial, sans-serif; font-size: 12px;
+	-webkit-transition: .25s; /* Safari */
+  transition: .25s;
 }
 
 button:hover {
 	cursor: pointer;
+	background-color: rgb(200,200,200);
+	-webkit-transition: .25s; /* Safari */
+  transition: .25s;
+}
+
+#overlay-back {
+    position   : absolute;
+    top        : 0;
+    left       : 0;
+    width      : 100%;
+    height     : 100%;
+    background : #000;
+    opacity    : 0;
+    filter     : alpha(opacity=60);
+    z-index    : 5;
+		-webkit-transition: .3s; /* Safari */
+	  transition: .3s;
+		visibility: hidden;
+}
+
+#whole {
+	opacity: 0;
+	-webkit-transition: .3s; /* Safari */
+	transition: .3s;
+	visibility: hidden;
 }
 
 </style>
@@ -483,20 +511,41 @@ function edit_file(path){
       document.getElementById('textarea').value = data;
     }
   });
+	appear();
+	document.getElementById("whole").style.opacity = "1";
+	document.getElementById("overlay-back").style.opacity = "0.6";
 }
+
 function ajaxSave() {
-
-
 	 var data = document.getElementById('textarea').value;
-
 	 $.ajax({
         type: "POST",
         url: 'index.php',
         data: {textarea: data, file: window.cwfile}
     });
 }
+
+function close_editor(){
+	document.getElementById("overlay-back").style.opacity = "0";
+	document.getElementById("whole").style.opacity = "0";
+	disappear();
+}
+
+function appear(){
+	document.getElementById("overlay-back").style.visibility = "visible";
+	document.getElementById("whole").style.visibility = "visible";
+}
+
+function disappear(){
+	document.getElementById("overlay-back").style.visibility = "hidden";
+	document.getElementById("whole").style.visibility = "hidden";
+}
+
+
 </script>
-</head><body>
+</head>
+<body>
+<div id="overlay-back"></div>
 <div id="top">
    <?php if($allow_create_folder): ?>
 	<form action="?" method="post" id="mkdir" />
@@ -527,11 +576,13 @@ function ajaxSave() {
 </tr></thead><tbody id="list">
 
 </tbody></table>
-<div style="display:inline-block">
-	<div style="">
-		<textarea style="display:block; margin-bottom:5px" id="textarea" wrap="hard">Type some text here.</textarea>
-		<button class="control" style="display:inline-block; float:right" onclick="close_editor()">Cancel</button>
-		<button class="control" style="display:inline-block; float:right" onclick="ajaxSave()">Save</button>
+<div id="whole" style="position:absolute; z-index  : 10; top:50%; left:50%; transform: translate(-50%, -50%);">
+	<div style="display:inline-block;">
+		<div style="">
+			<textarea style="display:block; margin-bottom:5px" id="textarea" wrap="hard">Type some text here.</textarea>
+			<button class="control" style="display:inline-block; float:right" onclick="close_editor()">Cancel</button>
+			<button class="control" style="display:inline-block; float:right" onclick="ajaxSave()">Save</button>
+		</div>
 	</div>
 </div>
 </body>
