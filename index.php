@@ -21,6 +21,14 @@ $hidden_extensions = ['php']; // must be an array of lowercase file extensions. 
 
 $PASSWORD = '';  // Set the password, to access the file manager... (optional)
 
+if(isset($_POST['textarea'])){
+	$data_write = $_POST['textarea'];
+	$location = $_POST['file'];
+	$fp = fopen($location, 'w');
+	fwrite($fp, $data_write);
+	fclose($fp);
+}
+
 if($PASSWORD) {
 
 	session_start();
@@ -51,12 +59,13 @@ if(strpos($_REQUEST['file'], DIRECTORY_SEPARATOR) === 0)
 	err(403,"Forbidden");
 
 
+
 if(!$_COOKIE['_sfm_xsrf'])
 	setcookie('_sfm_xsrf',bin2hex(openssl_random_pseudo_bytes(16)));
-if($_POST) {
-	if($_COOKIE['_sfm_xsrf'] !== $_POST['xsrf'] || !$_POST['xsrf'])
-		err(403,"XSRF Failure");
-}
+#if($_POST) {
+#	if($_COOKIE['_sfm_xsrf'] !== $_POST['xsrf'] || !$_POST['xsrf'] || !$_POST['data'])
+#		err(403,"XSRF Failure");
+#}
 
 $file = $_REQUEST['file'] ?: '.';
 if($_GET['do'] == 'list') {
@@ -233,9 +242,35 @@ a.delete {display:inline-block;
 	color: orange;
 }
 
+#textarea {
+	width: 900px;
+	height: 300px;
+	background-color: rgb(240,240,240);
+	resize: none;
+	-webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+	border: 2px solid rgb(125,125,125);
+	outline:none;
+	font-family: "lucida grande","Segoe UI",Arial, sans-serif; font-size: 14px;
+	padding: 10px;
+}
+
+.control {
+	border: 1px solid rgb(125,125,125);
+	-webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+	background-color: rgb(240,240,240);
+	font-family: "lucida grande","Segoe UI",Arial, sans-serif; font-size: 12px;
+}
+
+button:hover {
+	cursor: pointer;
+}
+
 </style>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
 <script>
 (function($){
 	$.fn.tablesorter = function() {
@@ -440,28 +475,26 @@ $(function(){
 	}
 })
 function edit_file(path){
+	window.cwfile = path;
 	$.ajax({
     url:path,
     success: function (data){
 			console.log(data);
-      tinymce.get('textarea').getBody().innerHTML = "<pre>" + data + "<\/pre>";
+      document.getElementById('textarea').value = data;
     }
   });
 }
-</script>
-<script type="application/x-javascript">
-tinymce.init({
-  selector: 'textarea',
-  height: 400,
-	width:900,
-  menubar: false,
-  plugins: [
-    'advlist autolink lists link image charmap print preview anchor textcolor',
-    'searchreplace visualblocks code fullscreen',
-    'insertdatetime media table contextmenu paste code help wordcount'
-  ],
-  toolbar: 'insert | undo redo |  formatselect | bold italic backcolor  | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat ',
-});
+function ajaxSave() {
+
+
+	 var data = document.getElementById('textarea').value;
+
+	 $.ajax({
+        type: "POST",
+        url: 'index.php',
+        data: {textarea: data, file: window.cwfile}
+    });
+}
 </script>
 </head><body>
 <div id="top">
@@ -494,6 +527,12 @@ tinymce.init({
 </tr></thead><tbody id="list">
 
 </tbody></table>
-<textarea id="textarea">Type some text here.</textarea>
+<div style="display:inline-block">
+	<div style="">
+		<textarea style="display:block; margin-bottom:5px" id="textarea" wrap="hard">Type some text here.</textarea>
+		<button class="control" style="display:inline-block; float:right" onclick="close_editor()">Cancel</button>
+		<button class="control" style="display:inline-block; float:right" onclick="ajaxSave()">Save</button>
+	</div>
+</div>
 </body>
 </html>
