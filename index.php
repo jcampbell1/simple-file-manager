@@ -268,7 +268,7 @@ a.delete {display:inline-block;
   transition: .25s;
 }
 
-button:hover {
+.control:hover {
 	cursor: pointer;
 	background-color: rgb(200,200,200);
 	-webkit-transition: .25s; /* Safari */
@@ -295,6 +295,25 @@ button:hover {
 	-webkit-transition: .3s; /* Safari */
 	transition: .3s;
 	visibility: hidden;
+}
+
+#saved {
+	position   : absolute;
+	background : #aaa;
+	opacity    : 0;
+	filter     : alpha(opacity=60);
+	-webkit-transition: .3s; /* Safari */
+	transition: .3s;
+	visibility: hidden;
+	z-index  : 14;
+	color:white;
+	top:50%;
+	left:50%;
+	transform: translate(-50%, -50%);
+	padding:40px;
+	border-radius: 2px;
+	border: 1.5px solid #777;
+	font-family: "lucida grande","Segoe UI",Arial, sans-serif; font-size: 28px;
 }
 
 </style>
@@ -523,6 +542,12 @@ function ajaxSave() {
         url: 'index.php',
         data: {textarea: data, file: window.cwfile}
     });
+		document.getElementById("saved").style.visibility = "visible";
+		document.getElementById("saved").style.opacity = "1";
+		setInterval(function(){
+			document.getElementById("saved").style.opacity = "0";
+			document.getElementById("saved").style.visibility = "hidden";
+		},1000);
 }
 
 function close_editor(){
@@ -546,6 +571,7 @@ function disappear(){
 </head>
 <body>
 <div id="overlay-back"></div>
+<div id="saved">The file was saved</div>
 <div id="top">
    <?php if($allow_create_folder): ?>
 	<form action="?" method="post" id="mkdir" />
