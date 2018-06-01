@@ -62,10 +62,10 @@ if(strpos($_REQUEST['file'], DIRECTORY_SEPARATOR) === 0)
 
 if(!$_COOKIE['_sfm_xsrf'])
 	setcookie('_sfm_xsrf',bin2hex(openssl_random_pseudo_bytes(16)));
-#if($_POST) {
-#	if($_COOKIE['_sfm_xsrf'] !== $_POST['xsrf'] || !$_POST['xsrf'] || !$_POST['data'])
-#		err(403,"XSRF Failure");
-#}
+if($_POST) {
+	if($_COOKIE['_sfm_xsrf'] !== $_POST['xsrf'] || !$_POST['xsrf'] || !$_POST['textarea'])
+		err(403,"XSRF Failure");
+}
 
 $file = $_REQUEST['file'] ?: '.';
 if($_GET['do'] == 'list') {
@@ -526,7 +526,6 @@ function edit_file(path){
 	$.ajax({
     url:path,
     success: function (data){
-			console.log(data);
       document.getElementById('textarea').value = data;
     }
   });
@@ -544,7 +543,7 @@ function ajaxSave() {
     });
 		document.getElementById("saved").style.visibility = "visible";
 		document.getElementById("saved").style.opacity = "1";
-		setInterval(function(){
+		setTimeout(function(){
 			document.getElementById("saved").style.opacity = "0";
 			document.getElementById("saved").style.visibility = "hidden";
 		},1000);
