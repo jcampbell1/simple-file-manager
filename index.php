@@ -17,7 +17,7 @@ $allow_direct_link = true; // Set to false to only allow downloads and not direc
 
 $disallowed_extensions = ['php'];  // must be an array. Extensions disallowed to be uploaded
 
-$hidden_extensions = ['php']; // must be an array of lowercase file extensions. Extensions hidden in directory index
+$hidden_extensions = []; // must be an array of lowercase file extensions. Extensions hidden in directory index
 
 $PASSWORD = '';  // Set the password, to access the file manager... (optional)
 
@@ -611,5 +611,6 @@ function disappear(){
 		</div>
 	</div>
 </div>
+<footer>simple php filemanager by <a href="https://github.com/jcampbell1">jcampbell1 modified by <a href="https://github.com/diego95root">diego95root</a></footer>
 </body>
 </html>
