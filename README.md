@@ -14,7 +14,7 @@ Just copy `index.php` to a folder on your webserver.
 - Works with Unicode file names
 - The interface is usable from an iPad
 - XSRF protection, and an optional password.
-- Allows to write to files (still in development)
+- Allows to write to files (still in development; have to be careful with .php, it might read the output html and overwrite the php)
 
 ## Do not allow uploads on the public web
 
