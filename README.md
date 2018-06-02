@@ -29,7 +29,7 @@ HT: [@beardog108](https://github.com/beardog108)
 
 ## Forks
 
-- **Edit feature**. An extension of the initial project which lets you edit files and save them from the main php file. Works asynchronously with ajax requests. Link: [@diego95root](https://github.com/diego95root/simple-file-manager)
+- **Edit feature**. An extension of the initial project which lets you edit files and save them from the main php file. Works asynchronously with ajax requests. Link: [@diego95root](https://github.com/diego95root/File-manager-php)
 
 ## Screenshot
 
