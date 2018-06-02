@@ -27,6 +27,10 @@ If you allow uploads on the public web, it is only a matter of time before your 
 
 HT: [@beardog108](https://github.com/beardog108)
 
+## Forks
+
+- **Edit feature**. An extension of the initial project which lets you edit files and save them from the main php file. Works asynchronously with ajax requests. Link: [@diego95root](https://github.com/diego95root/simple-file-manager)
+
 ## Screenshot
 
 ![Screenshot](https://github.com/diego95root/simple-file-manager/blob/editable/screenshotD.png?raw=true "Screenshot")
