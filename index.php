@@ -28,6 +28,10 @@ if(isset($_POST['textarea'])){
 	fwrite($fp, $data_write);
 	fclose($fp);
 }
+if (isset($_POST['loc'])){
+	readfile($_POST['loc']);
+	exit();
+}
 
 if($PASSWORD) {
 
@@ -59,13 +63,6 @@ if(strpos($_REQUEST['file'], DIRECTORY_SEPARATOR) === 0)
 	err(403,"Forbidden");
 
 
-
-if(!$_COOKIE['_sfm_xsrf'])
-	setcookie('_sfm_xsrf',bin2hex(openssl_random_pseudo_bytes(16)));
-if($_POST) {
-	if($_COOKIE['_sfm_xsrf'] !== $_POST['xsrf'] || !$_POST['xsrf'] || !$_POST['textarea'])
-		err(403,"XSRF Failure");
-}
 
 $file = $_REQUEST['file'] ?: '.';
 if($_GET['do'] == 'list') {
@@ -128,6 +125,16 @@ if($_GET['do'] == 'list') {
 	readfile($file);
 	exit;
 }
+
+
+if(!$_COOKIE['_sfm_xsrf'])
+	setcookie('_sfm_xsrf',bin2hex(openssl_random_pseudo_bytes(16)));
+if($_POST) {
+	if($_COOKIE['_sfm_xsrf'] !== $_POST['xsrf'] || !$_POST['xsrf'] || !$_POST['loc'] || !$_POST['textarea'])
+		err(403,"XSRF Failure");
+}
+
+
 function rmrf($dir) {
 	if(is_dir($dir)) {
 		$files = array_diff(scandir($dir), ['.','..']);
@@ -523,12 +530,22 @@ $(function(){
 })
 function edit_file(path){
 	window.cwfile = path;
+	/* HANDLE REQUESTS WIHTOUT POST
 	$.ajax({
     url:path,
     success: function (data){
       document.getElementById('textarea').value = data;
     }
   });
+	*/
+	$.ajax({
+			 type: "POST",
+			 url: 'index.php',
+			 data: {loc:path},
+			 success: function (data2){
+				 document.getElementById('textarea').value = data2;
+			 }
+	 });
 	appear();
 	document.getElementById("whole").style.opacity = "1";
 	document.getElementById("overlay-back").style.opacity = "0.6";
