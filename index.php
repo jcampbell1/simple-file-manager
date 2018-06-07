@@ -540,7 +540,7 @@ function edit_file(path){
 	*/
 	$.ajax({
 			 type: "POST",
-			 url: 'index.php',
+			 url: '<?php echo basename(__FILE__) ?>',
 			 data: {loc:path},
 			 success: function (data2){
 				 document.getElementById('textarea').value = data2;
@@ -555,7 +555,7 @@ function ajaxSave() {
 	 var data = document.getElementById('textarea').value;
 	 $.ajax({
         type: "POST",
-        url: 'index.php',
+        url: '<?php echo basename(__FILE__) ?>',
         data: {textarea: data, file: window.cwfile}
     });
 		document.getElementById("saved").style.visibility = "visible";
