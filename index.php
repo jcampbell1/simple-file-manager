@@ -488,6 +488,7 @@ $(function(){
 			.addClass('edit').text('edit');
 		var $delete_link = $('<a href="#" />').attr('data-file',data.path).addClass('delete').text('delete');
 		var perms = [];
+		perms.push('<?php echo get_current_user() ?>');
 		if(data.is_readable) perms.push('read');
 		if(data.is_writable) perms.push('write');
 		if(data.is_executable) perms.push('exec');
@@ -497,7 +498,7 @@ $(function(){
 			.append( $('<td/>').attr('data-sort',data.is_dir ? -1 : data.size)
 				.html($('<span class="size" />').text(formatFileSize(data.size))) )
 			.append( $('<td/>').attr('data-sort',data.mtime).text(formatTimestamp(data.mtime)) )
-			.append( $('<td/>').text(perms.join('+')) )
+			.append( $('<td/>').text(perms.slice(0,1) + ": " + perms.slice(1).join('+')) )
 			.append( $('<td/>').append($edit_link).append($dl_link).append( data.is_deleteable ? $delete_link : '') )
 		return $html;
 	}
