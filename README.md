@@ -16,6 +16,7 @@ Just copy `index.php` to a folder on your webserver.
 - XSRF protection, and an optional password.
 - Allows to write to files, even possible to modify php files read from server
 
+
 ## Do not allow uploads on the public web
 
 If you allow uploads on the public web, it is only a matter of time before your server is hosting and serving very illegal content. Any of the following options will prevent this:
