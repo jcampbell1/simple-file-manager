@@ -21,6 +21,13 @@ $hidden_extensions = []; // must be an array of lowercase file extensions. Exten
 
 $PASSWORD = '';  // Set the password, to access the file manager... (optional)
 
+//Settings
+
+$base_dir = ''; // set base directory, like: '/.git'
+
+
+if ($base_dir!=='') chdir(getcwd().$base_dir);
+
 if(isset($_POST['textarea'])){
 	$data_write = $_POST['textarea'];
 	$location = $_POST['file'];
@@ -51,7 +58,7 @@ if($PASSWORD) {
 // must be in UTF-8 or `basename` doesn't work
 setlocale(LC_ALL,'en_US.UTF-8');
 
-$tmp_dir = dirname($_SERVER['SCRIPT_FILENAME']);
+$tmp_dir = dirname($_SERVER['SCRIPT_FILENAME']).$base_dir;
 if(DIRECTORY_SEPARATOR==='\\') $tmp_dir = str_replace('/',DIRECTORY_SEPARATOR,$tmp_dir);
 $tmp = get_absolute_path($tmp_dir . '/' .$_REQUEST['file']);
 
