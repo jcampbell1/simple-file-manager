@@ -23,8 +23,7 @@ $PASSWORD = '';  // Set the password, to access the file manager... (optional)
 
 //Settings
 
-$base_dir = ''; // set base directory, like: '/.git'
-
+$base_dir = ''; // set base directory, something like '/.git'
 
 if ($base_dir!=='') chdir(getcwd().$base_dir);
 
@@ -485,7 +484,7 @@ $(function(){
 	}
 	function renderFileRow(data) {
 		var $link = $('<a class="name" />')
-			.attr('href', data.is_dir ? '#' + encodeURIComponent(data.path) : './'+ encodeURIComponent(data.path))
+			.attr('href', data.is_dir ? '#' + encodeURIComponent(data.path) : '<?php echo $base_dir?>/'+ encodeURIComponent(data.path))
 			.text(data.name);
 		var allow_direct_link = <?php echo $allow_direct_link?'true':'false'; ?>;
         	if (!data.is_dir && !allow_direct_link)  $link.css('pointer-events','none');
