@@ -3,7 +3,7 @@
 Simple PHP File Manager
 Copyright John Campbell (jcampbell1)
 
-Liscense: MIT
+License: MIT
 ********************************/
 
 //Disable error report for undefined superglobals
@@ -20,15 +20,16 @@ $disallowed_extensions = ['php'];  // must be an array. Extensions disallowed to
 $hidden_extensions = ['php']; // must be an array of lowercase file extensions. Extensions hidden in directory index
 
 $PASSWORD = '';  // Set the password, to access the file manager... (optional)
+$SESSION_ID = $_SERVER['PHP_SELF'];
 
 if($PASSWORD) {
 
 	session_start();
-	if(!$_SESSION['_sfm_allowed']) {
+	if(!$_SESSION[$SESSION_ID]) {
 		// sha1, and random bytes to thwart timing attacks.  Not meant as secure hashing.
 		$t = bin2hex(openssl_random_pseudo_bytes(10));
 		if($_POST['p'] && sha1($t.$_POST['p']) === sha1($t.$PASSWORD)) {
-			$_SESSION['_sfm_allowed'] = true;
+			$_SESSION[$SESSION_ID] = true;
 			header('Location: ?');
 		}
 		echo '<html><body><form action=? method=post>PASSWORD:<input type=password name=p /></form></body></html>';
