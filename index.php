@@ -69,7 +69,7 @@ if($_GET['do'] == 'list') {
 		$directory = $file;
 		$result = [];
 		$files = array_diff(scandir($directory), ['.','..']);
-		foreach ($files as $entry) if (!is_entry_ignored($entry)) {
+		foreach ($files as $entry) if (!is_entry_ignored($entry, $allow_show_folders, $download_blacklisted_extensions, $download_whitelisted_extensions)) {
 		$i = $directory . '/' . $entry;
 		$stat = stat($i);
 	        $result[] = [
@@ -108,7 +108,7 @@ if($_GET['do'] == 'list') {
 	var_dump($_POST);
 	var_dump($_FILES);
 	var_dump($_FILES['file_data']['tmp_name']);
-	check_tobeuploaded_file();
+	check_tobeuploaded_file($upload_blacklisted_extensions, $upload_whitelisted_extensions);
 	foreach($disallowed_extensions as $ext)
 		if(preg_match(sprintf('/\.%s$/',preg_quote($ext)), $_FILES['file_data']['name']))
 			err(403,"Files of this type are not allowed.");
@@ -126,15 +126,13 @@ if($_GET['do'] == 'list') {
 	exit;
 }
 
-function check_tobeuploaded_file() {
-	global $upload_blacklisted_extensions;
+function check_tobeuploaded_file($upload_blacklisted_extensions, $upload_whitelisted_extensions) {
 	if (count($upload_blacklisted_extensions) > 0) {
 		foreach($upload_blacklisted_extensions as $ext)
 			if(preg_match(sprintf('/\.%s$/',preg_quote($ext)), $_FILES['file_data']['name']))
 				err(403,"Files of this type are not allowed.");
 	}
 
-	global $upload_whitelisted_extensions;
 	if (count($upload_whitelisted_extensions) > 0) {
 		foreach($upload_whitelisted_extensions as $ext)
 			if(!preg_match(sprintf('/\.%s$/',preg_quote($ext)), $_FILES['file_data']['name']))
@@ -142,24 +140,21 @@ function check_tobeuploaded_file() {
 	}
 }
 
-function is_entry_ignored($entry) {
+function is_entry_ignored($entry, $allow_show_folders, $download_blacklisted_extensions, $download_whitelisted_extensions) {
 	if ($entry === basename(__FILE__)) {
 		return true;
 	}
 
-	global $allow_show_folders;
 	if (is_dir($entry) && !$allow_show_folders) {
 		return true;
 	}
 
 	$ext = strtolower(pathinfo($entry, PATHINFO_EXTENSION));
 
-	global $download_blacklisted_extensions;
 	if (count($download_blacklisted_extensions) > 0 && in_array($ext, $download_blacklisted_extensions)) {
 		return true;
 	}
 
-	global $download_whitelisted_extensions;
 	if (count($download_whitelisted_extensions) > 0 && !in_array($ext, $download_whitelisted_extensions)) {
 		return true;
 	}
