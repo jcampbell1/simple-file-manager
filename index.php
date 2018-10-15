@@ -50,10 +50,9 @@ if($tmp === false)
 	err(404,'File or Directory Not Found');
 if(substr($tmp, 0,strlen($tmp_dir)) !== $tmp_dir)
 	err(403,"Forbidden");
-if (!is_array($_REQUEST['file'])) {
-	if(strpos($_REQUEST['file'], DIRECTORY_SEPARATOR) === 0)
+if(strpos($_REQUEST['file'], DIRECTORY_SEPARATOR) === 0)
 	err(403,"Forbidden");
-}
+
 
 if(!$_COOKIE['_sfm_xsrf'])
 	setcookie('_sfm_xsrf',bin2hex(openssl_random_pseudo_bytes(16)));
@@ -93,13 +92,7 @@ if($_GET['do'] == 'list') {
 	exit;
 } elseif ($_POST['do'] == 'delete') {
 	if($allow_delete) {
-		if (!is_array($file)) {
-			rmrf($file);
-		} else {
-			foreach ($file as $kf => $sfile) {
-				rmrf($sfile);
-			}
-		}
+		rmrf($file);
 	}
 	exit;
 } elseif ($_POST['do'] == 'mkdir' && $allow_create_folder) {
@@ -259,7 +252,6 @@ a.delete {display:inline-block;
 	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAADtSURBVHjajFC7DkFREJy9iXg0t+EHRKJDJSqRuIVaJT7AF+jR+xuNRiJyS8WlRaHWeOU+kBy7eyKhs8lkJrOzZ3OWzMAD15gxYhB+yzAm0ndez+eYMYLngdkIf2vpSYbCfsNkOx07n8kgWa1UpptNII5VR/M56Nyt6Qq33bbhQsHy6aR0WSyEyEmiCG6vR2ffB65X4HCwYC2e9CTjJGGok4/7Hcjl+ImLBWv1uCRDu3peV5eGQ2C5/P1zq4X9dGpXP+LYhmYz4HbDMQgUosWTnmQoKKf0htVKBZvtFsx6S9bm48ktaV3EXwd/CzAAVjt+gHT5me0AAAAASUVORK5CYII=) no-repeat scroll 0 2px;
 	color:#d00;	margin-left: 15px;font-size:11px;padding:0 0 0 13px;
 }
-a.delete-all { color:#d00; font-size:11px; float: right; border: 1px solid #d00; padding: 0px 5px; margin: 2px 10px; }
 .name {
 	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABAklEQVRIie2UMW6DMBSG/4cYkJClIhauwMgx8CnSC9EjJKcwd2HGYmAwEoMREtClEJxYakmcoWq/yX623veebZmWZcFKWZbXyTHeOeeXfWDN69/uzPP8x1mVUmiaBlLKsxACAC6cc2OPd7zYK1EUYRgGZFkG3/fPAE5fIjcCAJimCXEcGxKnAiICERkSIcQmeVoQhiHatoWUEkopJEkCAB/r+t0lHyVN023c9z201qiq6s2ZYA9jDIwx1HW9xZ4+Ihta69cK9vwLvsX6ivYf4FGIyJj/rg5uqwccd2Ar7OUdOL/kPyKY5/mhZJ53/2asgiAIHhLYMARd16EoCozj6EzwCYrrX5dC9FQIAAAAAElFTkSuQmCC) no-repeat scroll 0px 12px;
 	padding:15px 0 10px 40px;
@@ -271,14 +263,6 @@ a.delete-all { color:#d00; font-size:11px; float: right; border: 1px solid #d00;
 .download {
 	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB2klEQVR4nJ2ST2sTQRiHn5mdmj92t9XmUJIWJGq9NHrRgxQiCtqbl97FqxgaL34CP0FD8Qv07EHEU0Ew6EXEk6ci8Q9JtcXEkHR3k+zujIdUqMkmiANzmJdnHn7vzCuIWbe291tSkvhz1pr+q1L2bBwrRgvFrcZKKinfP9zI2EoKmm7Azstf3V7fXK2Wc3ujvIqzAhglwRJoS2ImQZMEBjgyoDS4hv8QGHA1WICvp9yelsA7ITBTIkwWhGBZ0Iv+MUF+c/cB8PTHt08snb+AGAACZDj8qIN6bSe/uWsBb2qV24/GBLn8yl0plY9AJ9NKeL5ICyEIQkkiZenF5XwBDAZzWItLIIR6LGfk26VVxzltJ2gFw2a0FmQLZ+bcbo/DPbcd+PrDyRb+GqRipbGlZtX92UvzjmUpEGC0JgpC3M9dL+qGz16XsvcmCgCK2/vPtTNzJ1x2kkZIRBSivh8Z2Q4+VkvZy6O8HHvWyGyITvA1qndNpxfguQNkc2CIzM0xNk5QLedCEZm1VKsf2XrAXMNrA2vVcq4ZJ4DhvCSAeSALXASuLBTW129U6oPrT969AK4Bq0AeWARs4BRgieMUEkgDmeO9ANipzDnH//nFB0KgAxwATaAFeID5DQNatLGdaXOWAAAAAElFTkSuQmCC) no-repeat scroll 0px 5px;
 	padding:4px 0 4px 20px;
-}
-div.sticky {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
-     background-color: white;
-    /* padding: 50px; */
-    font-size: 20px;
 }
 </style>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
@@ -337,35 +321,6 @@ $(function(){
 			list();
 		},'json');
 		return false;
-	});
-
-	$("body").on("click", ".select-all", function (e) {
-		var status = $(e.target).is(":checked"); $.each($(".select-file"), function (i, v) { $(v).prop("checked", status); }); toggleButtonDeleteAllSelected();
-		return true;
-	});
-
-
-	$("body").on("click", ".select-file", function (e) {
-		$(".select-all").prop("checked", $(".select-file").length == $("input.select-file:checked").length); toggleButtonDeleteAllSelected();
-		return true;
-	});
-
-	function toggleButtonDeleteAllSelected() {
-		if ( $("input.select-file:checked").length ) { $(".delete-all").show(); } else { $(".delete-all").hide(); }
-		return true;
-	}
-
-	$("body").on("click", ".delete-all", function (e) {
-		e.preventDefault();
-		var r = confirm("Are you sure you want to delete all selected files?");
-		if (r == true) {
-			var listFiles = [];
-			$.each($("input.select-file:checked"), function (i,v) { listFiles.push( $(v).attr("data-file") ); });
-			if (listFiles.length) { $.post("",{'do':'delete',file:listFiles,xsrf:XSRF},function(response){ list(); },'json'); }
-			$(".delete-all").hide();
-			$(".select-all").prop("checked", false);
-		}
-		return true;
 	});
 
 	$('#mkdir').submit(function(e) {
@@ -477,7 +432,6 @@ $(function(){
 		if(data.is_executable) perms.push('exec');
 		var $html = $('<tr />')
 			.addClass(data.is_dir ? 'is_dir' : '')
-			.append( $(data.is_dir ? '<td></td>' : '<td><input type="checkbox" class="select-file" data-file="'+ data.path +'"></td>') )
 			.append( $('<td class="first" />').append($link) )
 			.append( $('<td/>').attr('data-sort',data.is_dir ? -1 : data.size)
 				.html($('<span class="size" />').text(formatFileSize(data.size))) )
@@ -516,9 +470,8 @@ $(function(){
 
 </script>
 </head><body>
-<div id="top" class="sticky">
+<div id="top">
    <?php if($allow_create_folder): ?>
-
 	<form action="?" method="post" id="mkdir" />
 		<label for=dirname>Create New Folder</label><input id=dirname type=text name=name value="" />
 		<input type="submit" value="create" />
@@ -534,15 +487,11 @@ $(function(){
 		<input type="file" multiple />
 	</div>
    <?php endif; ?>
-
-   <div style="line-height: 50px"><a href="#" class="delete-all" style="display: none; float: right;">Delete All Selected</a></div>
-
 	<div id="breadcrumb">&nbsp;</div>
 </div>
 
 <div id="upload_progress"></div>
 <table id="table"><thead><tr>
-	<th width='2%'><input type="checkbox" name="" value="" class="select-all"></th>
 	<th>Name</th>
 	<th>Size</th>
 	<th>Modified</th>
