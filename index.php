@@ -16,11 +16,8 @@ $allow_create_folder = true; // Set to false to disable folder creation
 $allow_direct_link = true; // Set to false to only allow downloads and not direct link
 $allow_show_folders = true; // Set to false to hide all subdirectories
 
-$disallowed_extensions = ['php'];  // must be an array. Extensions disallowed to be uploaded.
-$allowed_extensions = ['pdf'];  // must be an array. Extensions allowed to be uploaded. Make sure you don't add them in boths lists allowed and dissallowed.
-
+$disallowed_extensions = ['php'];  // must be an array. Extensions disallowed to be uploaded
 $hidden_extensions = ['php']; // must be an array of lowercase file extensions. Extensions hidden in directory index
-$shown_extensions = ['pdf']; // must be an array of lowercase file extensions. Extensions shown in directory index. Make sure you don't add them in boths lists
 
 $PASSWORD = '';  // Set the password, to access the file manager... (optional)
 
@@ -67,24 +64,22 @@ if($_GET['do'] == 'list') {
 		$directory = $file;
 		$result = [];
 		$files = array_diff(scandir($directory), ['.','..']);
-		foreach ($files as $entry) {
-			if (!is_entry_ignored($entry, $allow_show_folders, $hidden_extensions, $shown_extensions)) {
-				$i = $directory . '/' . $entry;
-				$stat = stat($i);
-		        $result[] = [
-		        	'mtime' => $stat['mtime'],
-		        	'size' => $stat['size'],
-		        	'name' => basename($i),
-		        	'path' => preg_replace('@^\./@', '', $i),
-		        	'is_dir' => is_dir($i),
-		        	'is_deleteable' => $allow_delete && ((!is_dir($i) && is_writable($directory)) ||
-	                                                           (is_dir($i) && is_writable($directory) && is_recursively_deleteable($i))),
-		        	'is_readable' => is_readable($i),
-		        	'is_writable' => is_writable($i),
-		        	'is_executable' => is_executable($i),
-		        ];
-			}
-		}
+		foreach ($files as $entry) if (!is_entry_ignored($entry, $allow_show_folders, $hidden_extensions)) {
+		$i = $directory . '/' . $entry;
+		$stat = stat($i);
+	        $result[] = [
+	        	'mtime' => $stat['mtime'],
+	        	'size' => $stat['size'],
+	        	'name' => basename($i),
+	        	'path' => preg_replace('@^\./@', '', $i),
+	        	'is_dir' => is_dir($i),
+	        	'is_deleteable' => $allow_delete && ((!is_dir($i) && is_writable($directory)) ||
+                                                           (is_dir($i) && is_writable($directory) && is_recursively_deleteable($i))),
+	        	'is_readable' => is_readable($i),
+	        	'is_writable' => is_writable($i),
+	        	'is_executable' => is_executable($i),
+	        ];
+	    }
 	} else {
 		err(412,"Not a Directory");
 	}
@@ -105,20 +100,9 @@ if($_GET['do'] == 'list') {
 	@mkdir($_POST['name']);
 	exit;
 } elseif ($_POST['do'] == 'upload' && $allow_upload) {
-	if (count($allowed_extensions)) {
-		foreach($allowed_extensions as $ext) {
-			if(preg_match(sprintf('/\.%s$/',preg_quote($ext)), $_FILES['file_data']['name']) == false) {
-				err(403,"Files of this type are not allowed.");
-			}
-		}
-	}
-	elseif (count($disallowed_extensions)) {
-		foreach($disallowed_extensions as $ext) {
-			if(preg_match(sprintf('/\.%s$/',preg_quote($ext)), $_FILES['file_data']['name'])) {
-				err(403,"Files of this type are not allowed.");
-			}
-		}
-	}
+	foreach($disallowed_extensions as $ext)
+		if(preg_match(sprintf('/\.%s$/',preg_quote($ext)), $_FILES['file_data']['name']))
+			err(403,"Files of this type are not allowed.");
 
 	$res = move_uploaded_file($_FILES['file_data']['tmp_name'], $file.'/'.$_FILES['file_data']['name']);
 	exit;
@@ -134,7 +118,7 @@ if($_GET['do'] == 'list') {
 	exit;
 }
 
-function is_entry_ignored($entry, $allow_show_folders, $hidden_extensions, $shown_extensions) {
+function is_entry_ignored($entry, $allow_show_folders, $hidden_extensions) {
 	if ($entry === basename(__FILE__)) {
 		return true;
 	}
@@ -144,13 +128,6 @@ function is_entry_ignored($entry, $allow_show_folders, $hidden_extensions, $show
 	}
 
 	$ext = strtolower(pathinfo($entry, PATHINFO_EXTENSION));
-
-	if (count($shown_extensions)) {
-		if (!in_array($ext, $shown_extensions) && !is_dir($entry)) {
-			return true;
-		}
-	}
-
 	if (in_array($ext, $hidden_extensions)) {
 		return true;
 	}
