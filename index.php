@@ -445,6 +445,8 @@ $(function(){
 			.attr('href', data.is_dir ? '#' + encodeURIComponent(data.path) : './'+ encodeURIComponent(data.path))
 			.text(data.name);
 		var allow_direct_link = <?php echo $allow_direct_link?'true':'false'; ?>;
+		var allow_delete = <?php echo $allow_delete?'true':'false'; ?>;
+
         	if (!data.is_dir && !allow_direct_link)  $link.css('pointer-events','none');
 		var $dl_link = $('<a/>').attr('href','?do=download&file='+ encodeURIComponent(data.path))
 			.addClass('download').text('download');
@@ -454,9 +456,12 @@ $(function(){
 		if(data.is_writable) perms.push('write');
 		if(data.is_executable) perms.push('exec');
 		var $html = $('<tr />')
-			.addClass(data.is_dir ? 'is_dir' : '')
-			.append( $(data.is_dir ? '<td></td>' : '<td><input type="checkbox" class="select-file" data-file="'+ data.path +'"></td>') )
-			.append( $('<td class="first" />').append($link) )
+			.addClass(data.is_dir ? 'is_dir' : '');
+
+		if (allow_delete) {
+			$html = $html.append( $(data.is_dir ? '<td></td>' : '<td><input type="checkbox" class="select-file" data-file="'+ data.path +'"></td>') );
+		}
+			$html.append( $('<td class="first" />').append($link) )
 			.append( $('<td/>').attr('data-sort',data.is_dir ? -1 : data.size)
 				.html($('<span class="size" />').text(formatFileSize(data.size))) )
 			.append( $('<td/>').attr('data-sort',data.mtime).text(formatTimestamp(data.mtime)) )
@@ -519,7 +524,9 @@ $(function(){
 
 <div id="upload_progress"></div>
 <table id="table"><thead><tr>
+	<?php if ($allow_delete): ?>
 	<th width='2%'><input type="checkbox" name="" value="" class="select-all"></th>
+	<?php endif; ?>
 	<th>Name</th>
 	<th>Size</th>
 	<th>Modified</th>
