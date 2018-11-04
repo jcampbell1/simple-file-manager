@@ -59,6 +59,7 @@ if($_POST) {
 }
 
 $file = $_REQUEST['file'] ?: '.';
+$file = str_replace('%20', ' ', $file);
 if($_GET['do'] == 'list') {
 	if (is_dir($file)) {
 		$directory = $file;
@@ -378,7 +379,7 @@ $(function(){
 	}
 <?php endif; ?>
 	function list() {
-		var hashval = window.location.hash.substr(1);
+		var hashval = decodeURI(window.location.hash.substr(1));
 		$.get('?do=list&file='+ hashval,function(data) {
 			$tbody.empty();
 			$('#breadcrumb').empty().html(renderBreadcrumbs(hashval));
