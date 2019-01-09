@@ -5,8 +5,10 @@ A Simple PHP file manager.  The code is a single php file.
 
 Just copy `index.php` to a folder on your webserver.  
 
-## What's new in my fork `https://github.com/zaheeraws/simple-file-manager`
+## What's new in my fork 
+ - Fork: `https://github.com/zaheeraws/simple-file-manager`
  - Added feature to unzip a zip file.
+
  **TODO**
  - Remove unzip link from non zip files action.
 
