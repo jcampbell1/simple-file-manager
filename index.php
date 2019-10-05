@@ -447,6 +447,7 @@ $(function(){
 
 </script>
 </head><body>
+<h1>File Uploader</h1>
 <div id="top">
    <?php if($allow_create_folder): ?>
 	<form action="?" method="post" id="mkdir" />
