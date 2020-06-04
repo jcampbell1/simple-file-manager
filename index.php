@@ -19,8 +19,11 @@ $allow_show_folders = true; // Set to false to hide all subdirectories
 $disallowed_patterns = ['*.php'];  // must be an array.  Matching files not allowed to be uploaded
 $hidden_patterns = ['*.php','.*']; // Matching files hidden in directory index
 
-$PASSWORD = '';  // Set the password, to access the file manager... (optional)
+//Security Upload Options
+$upload_max_filesize = null;// If null, the value defined in PHP.INI will be used. (1M, 2M, 500M, 1G)
+$post_max_size = $upload_max_filesize; // If null, the value defined in PHP.INI will be used. (1M, 2M, 500M, 1G)
 
+$PASSWORD = '';  // Set the password, to access the file manager... (optional)
 if($PASSWORD) {
 
 	session_start();
@@ -198,7 +201,14 @@ function asBytes($ini_v) {
 	$s = ['g'=> 1<<30, 'm' => 1<<20, 'k' => 1<<10];
 	return intval($ini_v) * ($s[strtolower(substr($ini_v,-1))] ?: 1);
 }
-$MAX_UPLOAD_SIZE = min(asBytes(ini_get('post_max_size')), asBytes(ini_get('upload_max_filesize')));
+
+function getMaxUploadSize($post_max_size, $upload_max_filesize){
+	$postMaxSize = ($post_max_size) ? $post_max_size : ini_get('post_max_size');
+	$uploadMaxFilesize = ($upload_max_filesize) ? $upload_max_filesize : ini_get('upload_max_filesize');
+	return min(asBytes($postMaxSize), asBytes(ini_get('upload_max_filesize')));
+}
+
+$MAX_UPLOAD_SIZE = getMaxUploadSize($post_max_size, $upload_max_filesize);
 ?>
 <!DOCTYPE html>
 <html><head>
