@@ -1,0 +1,4 @@
+.vscode
+ecosystem.config.js
+TmpTestDir/*
+!TmpTestDir/.gitkeep

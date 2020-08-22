@@ -23,20 +23,71 @@ $hidden_patterns = ['*.php','.*']; // Matching files hidden in directory index
 $upload_max_filesize = null;// If null, the value defined in PHP.INI will be used. (1M, 2M, 500M, 1G)
 $post_max_size = $upload_max_filesize; // If null, the value defined in PHP.INI will be used. (1M, 2M, 500M, 1G)
 
-$PASSWORD = '';  // Set the password, to access the file manager... (optional)
-if($PASSWORD) {
+$realm='Simple File Manager';
 
-	session_start();
-	if(!$_SESSION['_sfm_allowed']) {
-		// sha1, and random bytes to thwart timing attacks.  Not meant as secure hashing.
-		$t = bin2hex(openssl_random_pseudo_bytes(10));
-		if($_POST['p'] && sha1($t.$_POST['p']) === sha1($t.$PASSWORD)) {
+$users_basicAuth = [
+	'sfm_user' => 'sfm_password'
+];
+
+if(count($users_basicAuth)){
+
+	if(empty($_SERVER['_sfm_allowed'])){
+
+		$dataIn = getPhpAuthDigest();
+		$user = $dataIn['username'] ?? null;
+		$pass = $dataIn['password'] ?? null;
+		$A1 = md5($user . ':' . $realm . ':' . $users_basicAuth[$user]);
+		$A2 = md5($dataIn['REQUEST_METHOD'].':'.$dataIn['uri']);
+
+		$valid_response = md5($A1.':'.$dataIn['nonce'].':'.$dataIn['nc'].':'.$dataIn['cnonce'].':'.$dataIn['qop'].':'.$A2);	
+		
+		$validatedUserPass =  (in_array($user, array_keys($users_basicAuth))) && ($pass == $users_basicAuth[$user]);
+		if( ($dataIn['response'] == $valid_response) || $validatedUserPass ){
 			$_SESSION['_sfm_allowed'] = true;
-			header('Location: ?');
 		}
-		echo '<html><body><form action=? method=post>PASSWORD:<input type=password name=p autofocus/></form></body></html>';
-		exit;
+		
 	}
+
+	if (empty($_SESSION['_sfm_allowed'])) {
+    	header('HTTP/1.1 401 Unauthorized');
+    	header('WWW-Authenticate: Digest realm="'.$realm.'",qop="auth",nonce="'.uniqid().'",opaque="'.md5($realm).'"');
+		exit(401);
+	}
+
+}
+
+function getPhpAuthDigest()
+{
+	$dataOut = [];
+
+	$dataOut['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'] ?? null;
+
+	if(!$_SERVER['PHP_AUTH_DIGEST']){
+
+		if(isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])){
+			$dataOut['username'] = $_SERVER['PHP_AUTH_USER'];
+			$dataOut['password'] = $_SERVER['PHP_AUTH_PW'];
+			$dataOut['uri'] = $_SERVER['REQUEST_URI'];
+		}
+
+		return $dataOut;
+	}
+
+	$iniData = explode(',', $_SERVER['PHP_AUTH_DIGEST']);
+
+	array_map(function($item){
+		return trim($item);
+	}, $iniData);
+
+	$iniStr = implode(PHP_EOL, $iniData);
+
+	$parsedIni = parse_ini_string($iniStr);
+
+	if(!$parsedIni){
+		return $dataOut;
+	}
+
+	return array_merge($dataOut, $parsedIni);
 }
 
 // must be in UTF-8 or `basename` doesn't work
@@ -92,25 +143,73 @@ if($_GET['do'] == 'list') {
 			$f2_key = ($f2['is_dir']?:2) . $f2['name'];
 			return $f1_key > $f2_key;
 		});
+	} else if( is_file($file) && is_readable($file)) {
+		$stat = stat($file);
+		$result = array(
+			'mtime' => $stat['mtime'],
+			'size' => $stat['size'],
+			'name' => basename($file),
+			'path' => preg_replace('@^\./@', '', $file),
+			'is_dir' => is_dir($file),
+			'is_deleteable' => (!is_dir($file) && is_writable($file)),
+			'is_readable' => is_readable($file),
+			'is_writable' => is_writable($file),
+			'is_executable' => is_executable($file),
+		);
 	} else {
 		err(412,"Not a Directory");
 	}
-	echo json_encode(['success' => true, 'is_writable' => is_writable($file), 'results' =>$result]);
+
+	jsonOut(200, ['success' => true, 'is_writable' => is_writable($file), 'results' =>$result]);
 	exit;
 } elseif ($_POST['do'] == 'delete') {
-	if($allow_delete) {
-		rmrf($file);
+	if(is_dir($file)){
+		$type = 'dir';
+	}else{
+		$type = 'file';
 	}
+
+	rmrf($file);
+
+	$pathReal = sprintf('%s%s%s', __DIR__, DIRECTORY_SEPARATOR, $file);
+	$success = false;
+
+	if($type == 'dir'){
+		$success = !is_dir($pathReal);
+	} else {
+		$success = !is_file($pathReal);
+	}		
+
+	$out = [
+		'file' => $file,
+		'success' => $success 
+	];
+	$code = $success ? 200 : 500 ;
+	jsonOut($code, $out);
 	exit;
 } elseif ($_POST['do'] == 'mkdir' && $allow_create_folder) {
-	// don't allow actions outside root. we also filter out slashes to catch args like './../outside'
+
 	$dir = $_POST['name'];
-	$dir = str_replace('/', '', $dir);
-	if(substr($dir, 0, 2) === '..')
-	    exit;
-	chdir($file);
-	@mkdir($_POST['name']);
+	$out = [
+		'file' => $file,
+		'name' => $_POST['name'],
+		'success' => false
+	];
+	
+	if( !(strstr($_POST['name'],'.') === false )){
+		jsonOut(500, $out);
+		exit;
+	}
+
+	$chDir = (is_dir($file)) ? $file : getcwd();
+	@chdir($chDir);
+	$chk = @mkdir($_POST['name'], 0777, true);
+	$out['success'] = is_dir($_POST['name']);
+
+	$code = $out['success'] ? 200 : 500 ;
+	jsonOut($code, $out);
 	exit;
+
 } elseif ($_POST['do'] == 'upload' && $allow_upload) {
 	foreach($disallowed_patterns as $pattern)
 		if(fnmatch($pattern, $_FILES['file_data']['name']))
@@ -156,7 +255,7 @@ function rmrf($dir) {
 		foreach ($files as $file)
 			rmrf("$dir/$file");
 		rmdir($dir);
-	} else {
+	} else if(is_file($dir)){
 		unlink($dir);
 	}
 }
@@ -190,9 +289,15 @@ function get_absolute_path($path) {
     }
 
 function err($code,$msg) {
+	$data = ['error' => ['code'=>intval($code), 'msg' => $msg]];
+	jsonOut($code, $data);
+	exit;
+}
+
+function jsonOut($code, $data){
 	http_response_code($code);
-	header("Content-Type: application/json");
-	echo json_encode(['error' => ['code'=>intval($code), 'msg' => $msg]]);
+	header("Content-type: application/json; charset=utf-8");
+	echo json_encode($data);
 	exit;
 }
 
