@@ -1,0 +1,236 @@
+{
+	"info": {
+		"_postman_id": "f9cba3da-258d-4bba-81fd-bf524ae52fed",
+		"name": "SimpleFileManager",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "list",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{auth_password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{auth_user}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{url}}?do=list",
+					"host": [
+						"{{url}}"
+					],
+					"query": [
+						{
+							"key": "do",
+							"value": "list"
+						},
+						{
+							"key": "file",
+							"value": "img/customers/e11/logo/e11_kymo.png",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "mkdir",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{auth_password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{auth_user}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "do",
+							"value": "mkdir",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"value": "TmpTestDir",
+							"type": "text"
+						},
+						{
+							"key": "name",
+							"value": "imgs",
+							"type": "text"
+						},
+						{
+							"key": "xsrf",
+							"value": "{{sfm_xsrf}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "upload",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{auth_password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{auth_user}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file_data",
+							"type": "file",
+							"src": []
+						},
+						{
+							"key": "do",
+							"value": "upload",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"value": "TmpTestDir/imgs",
+							"type": "text"
+						},
+						{
+							"key": "xsrf",
+							"value": "{{sfm_xsrf}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{auth_password}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{auth_user}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "do",
+							"value": "delete",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"value": "TmpTestDir/imgs",
+							"type": "text"
+						},
+						{
+							"key": "xsrf",
+							"value": "{{sfm_xsrf}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "0d93d8a8-9c47-4101-81be-381d7c42d806",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "47c1545c-501f-4586-99ce-d3f284a56d67",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
