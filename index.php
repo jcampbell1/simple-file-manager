@@ -19,6 +19,8 @@ $allow_show_folders = true; // Set to false to hide all subdirectories
 $disallowed_patterns = ['*.php'];  // must be an array.  Matching files not allowed to be uploaded
 $hidden_patterns = ['*.php','.*']; // Matching files hidden in directory index
 
+$root_dir = '.';   // Change this to explore a directory in a different path (e.g.: /home/user/Desktop)
+
 $PASSWORD = '';  // Set the password, to access the file manager... (optional)
 
 if($PASSWORD) {
@@ -61,7 +63,12 @@ if($_POST) {
 		err(403,"XSRF Failure");
 }
 
-$file = $_REQUEST['file'] ?: '.';
+if($root_dir != '.'){
+    $root_dir = rtrim($root_dir,'/');
+    $file = $root_dir.'/'.$_REQUEST['file'];
+} else {
+    $file = $_REQUEST['file'] ?: '.';
+}
 
 if($_GET['do'] == 'list') {
 	if (is_dir($file)) {
@@ -71,18 +78,22 @@ if($_GET['do'] == 'list') {
 		foreach ($files as $entry) if (!is_entry_ignored($entry, $allow_show_folders, $hidden_patterns)) {
 			$i = $directory . '/' . $entry;
 			$stat = stat($i);
-			$result[] = [
-				'mtime' => $stat['mtime'],
-				'size' => $stat['size'],
-				'name' => basename($i),
-				'path' => preg_replace('@^\./@', '', $i),
-				'is_dir' => is_dir($i),
-				'is_deleteable' => $allow_delete && ((!is_dir($i) && is_writable($directory)) ||
-														(is_dir($i) && is_writable($directory) && is_recursively_deleteable($i))),
-				'is_readable' => is_readable($i),
-				'is_writable' => is_writable($i),
-				'is_executable' => is_executable($i),
-			];
+            $path = preg_replace('@^\./@', '', $i);
+            if($root_dir != '.'){
+                $path = ltrim(str_replace($root_dir, '', $path),'/');
+            }
+            $result[] = [
+                'mtime' => $stat['mtime'],
+                'size' => $stat['size'],
+                'name' => basename($i),
+                'path' => $path,
+                'is_dir' => is_dir($i),
+                'is_deleteable' => $allow_delete && ((!is_dir($i) && is_writable($directory)) ||
+                        (is_dir($i) && is_writable($directory) && is_recursively_deleteable($i))),
+                'is_readable' => is_readable($i),
+                'is_writable' => is_writable($i),
+                'is_executable' => is_executable($i),
+            ];
 		}
 		usort($result,function($f1,$f2){
 			$f1_key = ($f1['is_dir']?:2) . $f1['name'];
@@ -129,6 +140,17 @@ if($_GET['do'] == 'list') {
 	ob_flush();
 	readfile($file);
 	exit;
+}  elseif ($_GET['do'] == 'read'){
+    foreach($disallowed_patterns as $pattern)
+        if(fnmatch($pattern, $file))
+            err(403,"Files of this type are not allowed.");
+
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    header('Content-Type: ' . finfo_file($finfo, $file));
+    header('Content-Length: '. filesize($file));
+    ob_flush();
+    readfile($file);
+    exit;
 }
 
 function is_entry_ignored($entry, $allow_show_folders, $hidden_patterns) {
@@ -411,6 +433,9 @@ $(function(){
 		var $link = $('<a class="name" />')
 			.attr('href', data.is_dir ? '#' + encodeURIComponent(data.path) : './' + data.path)
 			.text(data.name);
+		if(!data.is_dir){
+		    $link.attr('href','?do=read&file='+data.path).attr('target','_blank');
+		}
 		var allow_direct_link = <?php echo $allow_direct_link?'true':'false'; ?>;
         	if (!data.is_dir && !allow_direct_link)  $link.css('pointer-events','none');
 		var $dl_link = $('<a/>').attr('href','?do=download&file='+ encodeURIComponent(data.path))
