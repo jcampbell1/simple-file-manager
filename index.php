@@ -67,6 +67,9 @@ if($_GET['do'] == 'list') {
 	if (is_dir($file)) {
 		$directory = $file;
 		$result = [];
+		$dir_count = 0;
+		$file_count = 0;
+		$total_size = 0;
 		$files = array_diff(scandir($directory), ['.','..']);
 		foreach ($files as $entry) if (!is_entry_ignored($entry, $allow_show_folders, $hidden_patterns)) {
 			$i = $directory . '/' . $entry;
@@ -83,6 +86,8 @@ if($_GET['do'] == 'list') {
 				'is_writable' => is_writable($i),
 				'is_executable' => is_executable($i),
 			];
+			is_dir($i) ? $dir_count++ : $file_count++;
+			!is_dir($i) && $total_size += $stat['size'];
 		}
 		usort($result,function($f1,$f2){
 			$f1_key = ($f1['is_dir']?:2) . $f1['name'];
@@ -92,7 +97,9 @@ if($_GET['do'] == 'list') {
 	} else {
 		err(412,"Not a Directory");
 	}
-	echo json_encode(['success' => true, 'is_writable' => is_writable($file), 'results' =>$result]);
+	echo json_encode(['success' => true, 'is_writable' => is_writable($file), 'results' => $result,
+		'dir_count' => $dir_count, 'file_count' => $file_count,
+		'total_size' => $total_size]);
 	exit;
 } elseif ($_POST['do'] == 'delete') {
 	if($allow_delete) {
@@ -223,6 +230,9 @@ label { display:block; font-size:11px; color:#555;}
 .no_write #mkdir, .no_write #file_drop_target {display: none}
 .progress_track {display:inline-block;width:200px;height:10px;border:1px solid #333;margin: 0 4px 0 10px;}
 .progress {background-color: #82CFFA;height:10px; }
+#count {color: #1F75CC; background-color: #F0F9FF; padding:.5em 1em .5em .2em;
+	border-top: 1px solid #96C4EA; border-bottom: 1px solid #82CFFA;border-left: 1px solid #E7F2FB;
+	border-right: 1px solid #E7F2FB; }
 footer {font-size:11px; color:#bbbbc5; padding:4em 0 0;text-align: left;}
 footer a, footer a:visited {color:#bbbbc5;}
 #breadcrumb { padding-top:34px; font-size:15px; color:#aaa;display:inline-block;float:left;}
@@ -401,6 +411,9 @@ $(function(){
 				});
 				!data.results.length && $tbody.append('<tr><td class="empty" colspan=5>This folder is empty</td></tr>')
 				data.is_writable ? $('body').removeClass('no_write') : $('body').addClass('no_write');
+				$('#dir_count').text(data.dir_count);
+				$('#file_count').text(data.file_count);
+				$('#total_size').text(formatFileSize(data.total_size));
 			} else {
 				console.warn(data.error.msg);
 			}
@@ -490,5 +503,11 @@ $(function(){
 </tr></thead><tbody id="list">
 
 </tbody></table>
+
+<div id="count">
+	<span id="dir_count">&nbsp;</span> Folders, <span id="file_count">&nbsp;</span> Files,
+	<span id="total_size">&nbsp;</span>
+</div>
+
 <footer>simple php filemanager by <a href="https://github.com/jcampbell1">jcampbell1</a></footer>
 </body></html>
