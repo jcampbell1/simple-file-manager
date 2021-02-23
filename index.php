@@ -223,6 +223,9 @@ label { display:block; font-size:11px; color:#555;}
 .no_write #mkdir, .no_write #file_drop_target {display: none}
 .progress_track {display:inline-block;width:200px;height:10px;border:1px solid #333;margin: 0 4px 0 10px;}
 .progress {background-color: #82CFFA;height:10px; }
+#count {color: #1F75CC; background-color: #F0F9FF; padding:.5em 1em .5em .2em;
+	border-top: 1px solid #96C4EA; border-bottom: 1px solid #82CFFA;border-left: 1px solid #E7F2FB;
+	border-right: 1px solid #E7F2FB; }
 footer {font-size:11px; color:#bbbbc5; padding:4em 0 0;text-align: left;}
 footer a, footer a:visited {color:#bbbbc5;}
 #breadcrumb { padding-top:34px; font-size:15px; color:#aaa;display:inline-block;float:left;}
@@ -396,11 +399,24 @@ $(function(){
 			$tbody.empty();
 			$('#breadcrumb').empty().html(renderBreadcrumbs(hashval));
 			if(data.success) {
+				var dir_count = 0;
+				var file_count = 0;
+				var total_size = 0;
 				$.each(data.results,function(k,v){
+					if (v.is_dir) {
+						dir_count++;
+					} else {
+						file_count++;
+						total_size += v.size;
+					}
 					$tbody.append(renderFileRow(v));
 				});
 				!data.results.length && $tbody.append('<tr><td class="empty" colspan=5>This folder is empty</td></tr>')
 				data.is_writable ? $('body').removeClass('no_write') : $('body').addClass('no_write');
+				$('#dir_count').text(dir_count);
+				$('#file_count').text(file_count);
+				$('#total_size').text(formatFileSize(total_size));
+				$('#total_size_b').text(total_size.toLocaleString());
 			} else {
 				console.warn(data.error.msg);
 			}
@@ -490,5 +506,11 @@ $(function(){
 </tr></thead><tbody id="list">
 
 </tbody></table>
+
+<div id="count">
+	<span id="dir_count">0</span> Folders, <span id="file_count">0</span> Files,
+	<span id="total_size">0 bytes</span> (<span id="total_size_b">0</span> bytes)
+</div>
+
 <footer>simple php filemanager by <a href="https://github.com/jcampbell1">jcampbell1</a></footer>
 </body></html>
