@@ -18,12 +18,13 @@ $allow_show_folders = true; // Set to false to hide all subdirectories
 
 $disallowed_patterns = ['*.php'];  // must be an array.  Matching files not allowed to be uploaded
 $hidden_patterns = ['*.php','.*']; // Matching files hidden in directory index
+$path = '/'; // If using a single domain with multiple subfolders, set this where this file is located, for example '/client_a/'
 
 $PASSWORD = '';  // Set the password, to access the file manager... (optional)
 
 if($PASSWORD) {
 
-	session_start();
+	session_start(['cookie_path' => $path]);
 	if(!$_SESSION['_sfm_allowed']) {
 		// sha1, and random bytes to thwart timing attacks.  Not meant as secure hashing.
 		$t = bin2hex(openssl_random_pseudo_bytes(10));
@@ -55,7 +56,7 @@ if(preg_match('@^.+://@',$_REQUEST['file'])) {
 
 
 if(!$_COOKIE['_sfm_xsrf'])
-	setcookie('_sfm_xsrf',bin2hex(openssl_random_pseudo_bytes(16)));
+	setcookie('_sfm_xsrf',bin2hex(openssl_random_pseudo_bytes(16)), 0, $path);
 if($_POST) {
 	if($_COOKIE['_sfm_xsrf'] !== $_POST['xsrf'] || !$_POST['xsrf'])
 		err(403,"XSRF Failure");
