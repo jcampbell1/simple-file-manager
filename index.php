@@ -446,7 +446,7 @@ $(function(){
 	function renderBreadcrumbs(path) {
 		var base = "",
 			$html = $('<div/>').append( $('<a href=#>Home</a></div>') );
-		$.each(path.split('%2F'),function(k,v){
+		$.each(path.split(/\/|%2F/i),function(k,v){
 			if(v) {
 				var v_as_text = decodeURIComponent(v);
 				$html.append( $('<span/>').text(' ▸ ') )
