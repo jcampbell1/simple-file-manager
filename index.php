@@ -3,7 +3,7 @@
 Simple PHP File Manager
 Copyright John Campbell (jcampbell1)
 
-Liscense: MIT
+License: MIT
 ********************************/
 
 //Disable error report for undefined superglobals
