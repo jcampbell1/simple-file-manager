@@ -41,6 +41,11 @@ setlocale(LC_ALL,'en_US.UTF-8');
 
 $tmp_dir = dirname($_SERVER['SCRIPT_FILENAME']);
 if(DIRECTORY_SEPARATOR==='\\') $tmp_dir = str_replace('/',DIRECTORY_SEPARATOR,$tmp_dir);
+
+//PHP 8 treats unset variables as warnings
+if (!isset($_REQUEST['file']))
+	$_REQUEST['file'] = "";
+
 $tmp = get_absolute_path($tmp_dir . '/' .$_REQUEST['file']);
 
 if($tmp === false)
@@ -63,6 +68,13 @@ if($_POST) {
 
 $file = $_REQUEST['file'] ?: '.';
 
+//PHP 8 treats unset variables as warnings
+if (!isset($_GET['do']))
+	$_GET['do'] = "";
+
+if (!isset($_POST['do']))
+	$_POST['do'] = "";
+
 if($_GET['do'] == 'list') {
 	if (is_dir($file)) {
 		$directory = $file;
@@ -84,10 +96,14 @@ if($_GET['do'] == 'list') {
 				'is_executable' => is_executable($i),
 			];
 		}
+		//PHP 8 no longer allows usort functions to return booleans, must be an integer.
 		usort($result,function($f1,$f2){
 			$f1_key = ($f1['is_dir']?:2) . $f1['name'];
 			$f2_key = ($f2['is_dir']?:2) . $f2['name'];
-			return $f1_key > $f2_key;
+			if ($f1_key > $f2_key)
+				return 1;
+			else
+				return 0;
 		});
 	} else {
 		err(412,"Not a Directory");
